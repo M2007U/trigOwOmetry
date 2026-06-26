@@ -83,19 +83,39 @@ function POwO_RedrawAll()
     //draw the main ring
     ctx.beginPath();
     ctx.arc( temp_CenterX , temp_CenterY , GLOBAL_RingRadius, 0, Math.PI * 2); // Radius is the center of the ring's thickness
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1;
     ctx.strokeStyle = '#FFFFFF';
     ctx.stroke();
 
+    //text ready
+    ctx.font = "20px Calibri"
+    ctx.textAlign = "center"
+    ctx.textBaseline = "middle"
+    
+
     //draw tickmarks
-    ctx.lineWidth = 1
+    
     ctx.strokeStyle = "#FFFFFF"
-    for(let i = 0 ; i < 360 ; i += 15)
+    for(let i = 0 ; i < 360 ; i += 5)
     {
         ctx.beginPath();
         let temp_i_angle = i / 360 * Math.PI * 2
         ctx.moveTo( temp_CenterX + GLOBAL_RingRadius * Math.cos(temp_i_angle) , temp_CenterY - GLOBAL_RingRadius * Math.sin(temp_i_angle) )
-        ctx.lineTo( temp_CenterX + (GLOBAL_RingRadius - GLOBAL_TickMarkSize) * Math.cos(temp_i_angle) , temp_CenterY - (GLOBAL_RingRadius - GLOBAL_TickMarkSize) * Math.sin(temp_i_angle) )
+
+        if (i % 15 === 0)
+        {
+            ctx.lineWidth = 3
+            ctx.strokeStyle = "rgba(255,255,255,1)"
+            ctx.lineTo( temp_CenterX + (GLOBAL_RingRadius - GLOBAL_TickMarkSize) * Math.cos(temp_i_angle) , temp_CenterY - (GLOBAL_RingRadius - GLOBAL_TickMarkSize) * Math.sin(temp_i_angle) )
+            ctx.fillText(i.toString() + "°", temp_CenterX + (GLOBAL_RingRadius + GLOBAL_TickMarkTextOffset) * Math.cos(temp_i_angle) , temp_CenterY - ( GLOBAL_RingRadius + GLOBAL_TickMarkTextOffset ) * Math.sin(temp_i_angle))
+        }
+        else
+        {
+            ctx.lineWidth = 1
+            ctx.strokeStyle = "rgba(255,255,255,0.5)"
+            ctx.lineTo( temp_CenterX + (GLOBAL_RingRadius - GLOBAL_TickMarkSize / 2 ) * Math.cos(temp_i_angle) , temp_CenterY - (GLOBAL_RingRadius - GLOBAL_TickMarkSize / 2) * Math.sin(temp_i_angle) )
+        }
+        
         
         ctx.stroke()
     }
@@ -155,6 +175,7 @@ var GLOBAL_TickMarkSize = 20
 var GLOBAL_Angle = 60/360 * 2 * Math.PI
 var GLOBAL_HandleRadius = 16
 var GLOBAL_Handle2Radius = 8
+var GLOBAL_TickMarkTextOffset = 30
 
 class ShOwOpe
 {
