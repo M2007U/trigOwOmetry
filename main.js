@@ -106,6 +106,7 @@ function POwO_RedrawAll()
         {
             ctx.lineWidth = 3
             ctx.strokeStyle = "rgba(255,255,255,1)"
+            ctx.fillStyle = "#FFFFFF"
             ctx.lineTo( temp_CenterX + (GLOBAL_RingRadius - GLOBAL_TickMarkSize) * Math.cos(temp_i_angle) , temp_CenterY - (GLOBAL_RingRadius - GLOBAL_TickMarkSize) * Math.sin(temp_i_angle) )
             ctx.fillText(i.toString() + "°", temp_CenterX + (GLOBAL_RingRadius + GLOBAL_TickMarkTextOffset) * Math.cos(temp_i_angle) , temp_CenterY - ( GLOBAL_RingRadius + GLOBAL_TickMarkTextOffset ) * Math.sin(temp_i_angle))
         }
@@ -149,9 +150,11 @@ function POwO_RedrawAll()
     //draw handle
     ctx.beginPath();
     ctx.arc( temp_CenterX + temp_deltaX , temp_CenterY - temp_deltaY , GLOBAL_HandleRadius, 0, Math.PI * 2);
-    ctx.lineWidth = 0;
+    ctx.lineWidth = 50;
     ctx.fillStyle = '#FFC000';
+    ctx.strokeStyle = "rgba(255,192,0,0.25)"
     ctx.fill();
+    ctx.stroke();
     
     //draw secondary handle
     ctx.beginPath();
@@ -160,6 +163,28 @@ function POwO_RedrawAll()
     ctx.fillStyle = '#FFFFFF';
     ctx.fill();
 
+    //draw text to show line labels
+    let temp_TagCoord_X = ( temp_CenterX * 2 + temp_deltaX ) / 2
+    let temp_TagCoord_Y = (temp_CenterY * 2 - temp_deltaY) / 2
+    
+    ctx.beginPath()
+    ctx.fillStyle = "#302010"
+    ctx.roundRect(temp_TagCoord_X - GLOBAL_TagSize_W / 2 , temp_TagCoord_Y - GLOBAL_TagSize_H / 2 , GLOBAL_TagSize_W, GLOBAL_TagSize_H, 16);
+    ctx.fill()
+    ctx.fillStyle = "rgba(255,192,0,1)"
+    ctx.fillText("R = 1", temp_TagCoord_X , temp_TagCoord_Y )
+    ctx.beginPath()
+    ctx.fillStyle = "#201010"
+    ctx.roundRect(temp_TagCoord_X - GLOBAL_TagSize_W / 2 , temp_CenterY - GLOBAL_TagSize_H / 2 , GLOBAL_TagSize_W, GLOBAL_TagSize_H, 16);
+    ctx.fill()
+    ctx.fillStyle = "rgba(255,0,0,1)"
+    ctx.fillText("Rcosθ = " + Math.cos(GLOBAL_Angle).toFixed(3), temp_TagCoord_X , temp_CenterY )
+    ctx.beginPath()
+    ctx.fillStyle = "#102010"
+    ctx.roundRect(temp_CenterX + temp_deltaX - GLOBAL_TagSize_W / 2 , temp_TagCoord_Y - GLOBAL_TagSize_H / 2 , GLOBAL_TagSize_W, GLOBAL_TagSize_H, 16);
+    ctx.fill()
+    ctx.fillStyle = "rgba(0,192,64,1)"
+    ctx.fillText("Rsinθ = " + Math.sin(GLOBAL_Angle).toFixed(3), temp_CenterX + temp_deltaX , temp_TagCoord_Y )
 }
 
 
@@ -176,6 +201,8 @@ var GLOBAL_Angle = 60/360 * 2 * Math.PI
 var GLOBAL_HandleRadius = 16
 var GLOBAL_Handle2Radius = 8
 var GLOBAL_TickMarkTextOffset = 30
+var GLOBAL_TagSize_W = 150
+var GLOBAL_TagSize_H = 50
 
 class ShOwOpe
 {
