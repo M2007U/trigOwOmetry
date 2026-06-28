@@ -58,6 +58,16 @@ function POwO_Math_LERPmap(a,b,v,A,B)
     return POwO_Math_LERP(A,B,t);
 }
 
+function POwO_Math_DegToRad(inDeg)
+{
+    return Math.PI * 2 * inDeg / 360
+}
+
+function POwO_Math_IsInRange_Exclusive(inMin, inVal, inMax)
+{
+    return inMin < inVal && inVal < inMax
+}
+
 // ---- ---- ---- ---- page function
 
 function POwO_getMouse(event)
@@ -68,6 +78,19 @@ function POwO_getMouse(event)
         temp_mouseX: event.clientX - rect.left,
         temp_mouseY: event.clientY - rect.top
     };
+}
+
+function POwO_fromMousePosToAngle(inMouseX, inMouseY, isSnap)
+{
+    let temp_Angle = Math.atan2(GLOBAL_CenterY - inMouseY, inMouseX - GLOBAL_CenterX )
+    if (isSnap)
+    {
+        for(let i = POwO_Math_DegToRad(-180 - 7.5) ; i <  POwO_Math_DegToRad(-172.5 + 360) ; i += POwO_Math_DegToRad(15))
+        {
+            if ( POwO_Math_IsInRange_Exclusive(i, temp_Angle , i + POwO_Math_DegToRad(15))){ temp_Angle = i + POwO_Math_DegToRad( 7.5 ) }
+        }
+    }
+    return temp_Angle
 }
 
 function POwO_Kanvas_DrawTag(inX, inY, inW, inH, inR, inTagColor, inTextString, inTextColor, inTextFont)
@@ -88,8 +111,7 @@ function POwO_Kanvas_DrawTag(inX, inY, inW, inH, inR, inTagColor, inTextString, 
 
 function POwO_RedrawAll()
 {
-    let temp_CenterX = canvas.width / 2
-    let temp_CenterY = canvas.height / 2
+    
 
     let temp_deltaX = GLOBAL_RingRadius * Math.cos(GLOBAL_Angle)
     let temp_deltaY = Math.sin(GLOBAL_Angle) * GLOBAL_RingRadius
@@ -98,7 +120,7 @@ function POwO_RedrawAll()
     
     //draw the main ring
     ctx.beginPath();
-    ctx.arc( temp_CenterX , temp_CenterY , GLOBAL_RingRadius, 0, Math.PI * 2); // Radius is the center of the ring's thickness
+    ctx.arc( GLOBAL_CenterX , GLOBAL_CenterY , GLOBAL_RingRadius, 0, Math.PI * 2); // Radius is the center of the ring's thickness
     ctx.lineWidth = 1;
     ctx.strokeStyle = '#FFFFFF';
     ctx.stroke();
@@ -115,21 +137,21 @@ function POwO_RedrawAll()
     {
         ctx.beginPath();
         let temp_i_angle = i / 360 * Math.PI * 2
-        ctx.moveTo( temp_CenterX + GLOBAL_RingRadius * Math.cos(temp_i_angle) , temp_CenterY - GLOBAL_RingRadius * Math.sin(temp_i_angle) )
+        ctx.moveTo( GLOBAL_CenterX + GLOBAL_RingRadius * Math.cos(temp_i_angle) , GLOBAL_CenterY - GLOBAL_RingRadius * Math.sin(temp_i_angle) )
 
         if (i % 15 === 0)
         {
             ctx.lineWidth = 3
             ctx.strokeStyle = "rgba(255,255,255,1)"
             ctx.fillStyle = "#FFFFFF"
-            ctx.lineTo( temp_CenterX + (GLOBAL_RingRadius - GLOBAL_TickMarkSize) * Math.cos(temp_i_angle) , temp_CenterY - (GLOBAL_RingRadius - GLOBAL_TickMarkSize) * Math.sin(temp_i_angle) )
-            ctx.fillText(i.toString() + "°", temp_CenterX + (GLOBAL_RingRadius + GLOBAL_TickMarkTextOffset) * Math.cos(temp_i_angle) , temp_CenterY - ( GLOBAL_RingRadius + GLOBAL_TickMarkTextOffset ) * Math.sin(temp_i_angle))
+            ctx.lineTo( GLOBAL_CenterX + (GLOBAL_RingRadius - GLOBAL_TickMarkSize) * Math.cos(temp_i_angle) , GLOBAL_CenterY - (GLOBAL_RingRadius - GLOBAL_TickMarkSize) * Math.sin(temp_i_angle) )
+            ctx.fillText(i.toString() + "°", GLOBAL_CenterX + (GLOBAL_RingRadius + GLOBAL_TickMarkTextOffset) * Math.cos(temp_i_angle) , GLOBAL_CenterY - ( GLOBAL_RingRadius + GLOBAL_TickMarkTextOffset ) * Math.sin(temp_i_angle))
         }
         else
         {
             ctx.lineWidth = 1
             ctx.strokeStyle = "rgba(255,255,255,0.5)"
-            ctx.lineTo( temp_CenterX + (GLOBAL_RingRadius - GLOBAL_TickMarkSize / 2 ) * Math.cos(temp_i_angle) , temp_CenterY - (GLOBAL_RingRadius - GLOBAL_TickMarkSize / 2) * Math.sin(temp_i_angle) )
+            ctx.lineTo( GLOBAL_CenterX + (GLOBAL_RingRadius - GLOBAL_TickMarkSize / 2 ) * Math.cos(temp_i_angle) , GLOBAL_CenterY - (GLOBAL_RingRadius - GLOBAL_TickMarkSize / 2) * Math.sin(temp_i_angle) )
         }
         
         
@@ -140,44 +162,91 @@ function POwO_RedrawAll()
     ctx.beginPath()
     ctx.strokeStyle = "#FF0000"
     ctx.lineWidth = 1
-    ctx.moveTo(temp_CenterX - GLOBAL_RingRadius, temp_CenterY)
-    ctx.lineTo(temp_CenterX + GLOBAL_RingRadius, temp_CenterY)
+    ctx.moveTo(GLOBAL_CenterX - GLOBAL_RingRadius, GLOBAL_CenterY)
+    ctx.lineTo(GLOBAL_CenterX + GLOBAL_RingRadius, GLOBAL_CenterY)
     ctx.stroke()
     ctx.beginPath()
     ctx.strokeStyle = "#00FF00"
     ctx.lineWidth = 1
-    ctx.moveTo(temp_CenterX , temp_CenterY - GLOBAL_RingRadius)
-    ctx.lineTo(temp_CenterX , temp_CenterY + GLOBAL_RingRadius)
+    ctx.moveTo(GLOBAL_CenterX , GLOBAL_CenterY - GLOBAL_RingRadius)
+    ctx.lineTo(GLOBAL_CenterX , GLOBAL_CenterY + GLOBAL_RingRadius)
     ctx.stroke()
+
+    //draw angles
+    let temp_Acute_start = 0
+    let temp_Acute_end = 0
+    let temp_Angle_Moded = GLOBAL_Angle % (Math.PI * 2)
+    ctx.beginPath();
+    ctx.moveTo(GLOBAL_CenterX , GLOBAL_CenterY)
+    ctx.arc( GLOBAL_CenterX , GLOBAL_CenterY , 100 , 0 , - temp_Angle_Moded ,true);
+    ctx.lineTo(GLOBAL_CenterX, GLOBAL_CenterY)
+    ctx.fillStyle = "rgba(255,255,255,0.25)"
+    ctx.fill()
+    if (0 < temp_Angle_Moded && temp_Angle_Moded < Math.PI * 2 * 0.25) //if we use atan2 to detect angels, the range is -180 to 180
+    {
+        //1st quad
+        temp_Acute_start = 0
+        temp_Acute_end = temp_Angle_Moded
+    }
+    else if (Math.PI * 2 * 0.25 < temp_Angle_Moded && temp_Angle_Moded < Math.PI * 2 * 0.5)
+    {
+        //2nd quad
+        temp_Acute_start = temp_Angle_Moded
+        temp_Acute_end = Math.PI
+    }
+    else if (- Math.PI * 2 * 0.5 < temp_Angle_Moded && temp_Angle_Moded < - Math.PI * 2 * 0.25)
+    {
+        //3rd quad
+        temp_Acute_start = Math.PI
+        temp_Acute_end = temp_Angle_Moded
+    }
+    else if (- Math.PI * 2 * 0.25 < temp_Angle_Moded && temp_Angle_Moded < 0)
+    {
+        //4th quad
+        temp_Acute_start = temp_Angle_Moded
+        temp_Acute_end = 0
+    }
+    else
+    {
+        temp_Acute_start = 0
+        temp_Acute_end = 0
+    }
+    ctx.beginPath();
+    ctx.moveTo(GLOBAL_CenterX , GLOBAL_CenterY)
+    ctx.arc( GLOBAL_CenterX , GLOBAL_CenterY , 50 , - temp_Acute_start , - temp_Acute_end ,true);
+    ctx.lineTo(GLOBAL_CenterX, GLOBAL_CenterY)
+    ctx.fillStyle = "rgba(255,192,0,1)"
+    ctx.fill()
+
     
 
     //draw radius
     ctx.beginPath();
-    ctx.moveTo( temp_CenterX , temp_CenterY )
-    ctx.lineTo( temp_CenterX + temp_deltaX , temp_CenterY - temp_deltaY );
+    ctx.moveTo( GLOBAL_CenterX , GLOBAL_CenterY )
+    ctx.lineTo( GLOBAL_CenterX + temp_deltaX , GLOBAL_CenterY - temp_deltaY );
     ctx.lineWidth = 5
     ctx.strokeStyle = "#FFC000"
     ctx.stroke()
 
     //draw deltaX
     ctx.beginPath();
-    ctx.moveTo( temp_CenterX , temp_CenterY )
-    ctx.lineTo( temp_CenterX + temp_deltaX , temp_CenterY);
+    ctx.moveTo( GLOBAL_CenterX , GLOBAL_CenterY )
+    ctx.lineTo( GLOBAL_CenterX + temp_deltaX , GLOBAL_CenterY);
     ctx.lineWidth = 5
     ctx.strokeStyle = "#FF0000"
     ctx.stroke()
 
     //draw deltaY
     ctx.beginPath();
-    ctx.moveTo( temp_CenterX + temp_deltaX , temp_CenterY )
-    ctx.lineTo( temp_CenterX + temp_deltaX , temp_CenterY - temp_deltaY );
+    ctx.moveTo( GLOBAL_CenterX + temp_deltaX , GLOBAL_CenterY )
+    ctx.lineTo( GLOBAL_CenterX + temp_deltaX , GLOBAL_CenterY - temp_deltaY );
     ctx.lineWidth = 5
     ctx.strokeStyle = "#00C040"
     ctx.stroke()
 
     //draw handle
     ctx.beginPath();
-    ctx.arc( temp_CenterX + temp_deltaX , temp_CenterY - temp_deltaY , GLOBAL_HandleRadius, 0, Math.PI * 2);
+    ctx.arc( GLOBAL_CenterX + temp_deltaX , GLOBAL_CenterY - temp_deltaY , GLOBAL_HandleRadius, 0, Math.PI * 2);
     ctx.lineWidth = 50;
     ctx.fillStyle = '#FFC000';
     ctx.strokeStyle = "rgba(255,192,0,0.25)"
@@ -186,26 +255,27 @@ function POwO_RedrawAll()
     
     //draw secondary handle
     ctx.beginPath();
-    ctx.arc( temp_CenterX + temp_deltaX , temp_CenterY , GLOBAL_Handle2Radius, 0, Math.PI * 2);
+    ctx.arc( GLOBAL_CenterX + temp_deltaX , GLOBAL_CenterY , GLOBAL_Handle2Radius, 0, Math.PI * 2);
     ctx.lineWidth = 0;
     ctx.fillStyle = '#FFFFFF';
     ctx.fill();
 
     //draw origin point
     ctx.beginPath();
-    ctx.arc( temp_CenterX, temp_CenterY , 8, 0, Math.PI * 2);
+    ctx.arc( GLOBAL_CenterX, GLOBAL_CenterY , 8, 0, Math.PI * 2);
     ctx.lineWidth = 24;
     ctx.fillStyle = '#FFFFFF';
     ctx.strokeStyle = "rgba(255,255,255,0.25)"
     ctx.fill();
     ctx.stroke()
 
+
     //draw text to show line labels
-    let temp_TagCoord_X = ( temp_CenterX * 2 + temp_deltaX ) / 2
-    let temp_TagCoord_Y = (temp_CenterY * 2 - temp_deltaY) / 2
+    let temp_TagCoord_X = ( GLOBAL_CenterX * 2 + temp_deltaX ) / 2
+    let temp_TagCoord_Y = (GLOBAL_CenterY * 2 - temp_deltaY) / 2
     POwO_Kanvas_DrawTag(temp_TagCoord_X, temp_TagCoord_Y, 80, 50, 16, "#302010","R = 1","#FFC000","20px Calibri")
-    POwO_Kanvas_DrawTag(temp_TagCoord_X, temp_CenterY, 150, 50, 16, "#201010","Rcosθ = " + Math.cos(GLOBAL_Angle).toFixed(3),"#FF0000","20px Calibri")
-    POwO_Kanvas_DrawTag(temp_CenterX + temp_deltaX, temp_TagCoord_Y, 150,50,16, "#102010", "Rsinθ = " + Math.sin(GLOBAL_Angle).toFixed(3),"#00C040", "20px Calibri" )
+    POwO_Kanvas_DrawTag(temp_TagCoord_X, GLOBAL_CenterY, 150, 50, 16, "#201010","Rcosθ = " + Math.cos(GLOBAL_Angle).toFixed(3),"#FF0000","20px Calibri")
+    POwO_Kanvas_DrawTag(GLOBAL_CenterX + temp_deltaX, temp_TagCoord_Y, 150,50,16, "#102010", "Rsinθ = " + Math.sin(GLOBAL_Angle).toFixed(3),"#00C040", "20px Calibri" )
     
 }
 
@@ -223,8 +293,12 @@ var GLOBAL_Angle = 60/360 * 2 * Math.PI
 var GLOBAL_HandleRadius = 16
 var GLOBAL_Handle2Radius = 8
 var GLOBAL_TickMarkTextOffset = 30
-var GLOBAL_TagSize_W = 150
-var GLOBAL_TagSize_H = 50
+
+var GLOBAL_CenterX = canvas.width / 2
+var GLOBAL_CenterY = canvas.height / 2
+var GLOBAL_isHold = false
+var GLOBAL_isSnap = false
+
 
 class ShOwOpe
 {
@@ -302,44 +376,29 @@ class ShOwOpe
 canvas.addEventListener("mousedown", (event) => {
 
     const { temp_mouseX, temp_mouseY } = POwO_getMouse(event);
-
-    for (let i = GLOBAL_shapeList.length - 1; i >= 0 ; i--)
-    {
-        if (GLOBAL_shapeList[i].isInside(temp_mouseX, temp_mouseY))
-        {
-            GLOBAL_selectedShape = GLOBAL_shapeList[i];
-            console.log("selectedShape : " + JSON.stringify(GLOBAL_selectedShape))
-
-            GLOBAL_dragOffsetX = temp_mouseX - GLOBAL_selectedShape.PosX;
-            GLOBAL_dragOffsetY = temp_mouseY - GLOBAL_selectedShape.PosY;
-
-            break;
-        }
-    }
-
-
+    GLOBAL_Angle = POwO_fromMousePosToAngle( temp_mouseX , temp_mouseY , GLOBAL_isSnap)
+    
+    GLOBAL_isHold = true
+    POwO_RedrawAll();
 });
 
 canvas.addEventListener("mousemove", (event) => {
 
-    if (!GLOBAL_selectedShape) return;
+    if (GLOBAL_isHold)
+    {
+        const { temp_mouseX, temp_mouseY } = POwO_getMouse(event);
 
-    const { temp_mouseX, temp_mouseY } = POwO_getMouse(event);
-
-    GLOBAL_selectedShape.PosX = temp_mouseX - GLOBAL_dragOffsetX;
-    GLOBAL_selectedShape.PosY = temp_mouseY - GLOBAL_dragOffsetY;
-
-    POwO_RedrawAll();
+        GLOBAL_Angle = POwO_fromMousePosToAngle( temp_mouseX , temp_mouseY , GLOBAL_isSnap)
+        POwO_RedrawAll();
+    }
 });
 
 canvas.addEventListener("mouseup", () => {
-    GLOBAL_selectedShape = null;
-    console.log("selectedShape : " + JSON.stringify(GLOBAL_selectedShape))
+    GLOBAL_isHold = false
 });
 
 HTML_Body.addEventListener("mouseup", () => {
-    GLOBAL_selectedShape = null;
-    console.log("selectedShape : " + JSON.stringify(GLOBAL_selectedShape))
+    
 });
 
 var GLOBAL_shapeList = [];
@@ -351,17 +410,6 @@ var GLOBAL_dragOffsetY = 0;
 
 
 // ---- ---- ---- ---- RUN MAIN
-
-let smol_circle = new ShOwOpe(500, 500, 1, "circle", 50, -1, "rgba(0,0,0,0)", 0, "rgba(255,0,0,1)", ctx)
-let smol_square = new ShOwOpe(800, 500, 1, "rect", 100, 100, "rgba(0,0,0,0)", 0, "rgba(0,0,255,1)", ctx)
-
-GLOBAL_shapeList.push(smol_circle)
-GLOBAL_shapeList.push(smol_square)
-
-setInterval(()=>{
-
-    GLOBAL_Angle += Math.PI * 2 * 1/360
-    POwO_RedrawAll()
-},10)
+POwO_RedrawAll()
 
 
