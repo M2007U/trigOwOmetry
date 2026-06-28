@@ -70,6 +70,22 @@ function POwO_getMouse(event)
     };
 }
 
+function POwO_Kanvas_DrawTag(inX, inY, inW, inH, inR, inTagColor, inTextString, inTextColor, inTextFont)
+{
+    //first the tag
+    ctx.beginPath()
+    ctx.fillStyle = inTagColor
+    ctx.roundRect( inX - inW/2 , inY - inH/2 , inW, inH, inR )
+    ctx.fill()
+
+    //then the text
+    ctx.font = inTextFont
+    ctx.textAlign = "center"
+    ctx.textBaseline = "middle"
+    ctx.fillStyle = inTextColor
+    ctx.fillText(inTextString, inX, inY)
+}
+
 function POwO_RedrawAll()
 {
     let temp_CenterX = canvas.width / 2
@@ -94,7 +110,6 @@ function POwO_RedrawAll()
     
 
     //draw tickmarks
-    
     ctx.strokeStyle = "#FFFFFF"
     for(let i = 0 ; i < 360 ; i += 5)
     {
@@ -121,6 +136,19 @@ function POwO_RedrawAll()
         ctx.stroke()
     }
 
+    //draw XY axis
+    ctx.beginPath()
+    ctx.strokeStyle = "#FF0000"
+    ctx.lineWidth = 1
+    ctx.moveTo(temp_CenterX - GLOBAL_RingRadius, temp_CenterY)
+    ctx.lineTo(temp_CenterX + GLOBAL_RingRadius, temp_CenterY)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.strokeStyle = "#00FF00"
+    ctx.lineWidth = 1
+    ctx.moveTo(temp_CenterX , temp_CenterY - GLOBAL_RingRadius)
+    ctx.lineTo(temp_CenterX , temp_CenterY + GLOBAL_RingRadius)
+    ctx.stroke()
     
 
     //draw radius
@@ -163,28 +191,22 @@ function POwO_RedrawAll()
     ctx.fillStyle = '#FFFFFF';
     ctx.fill();
 
+    //draw origin point
+    ctx.beginPath();
+    ctx.arc( temp_CenterX, temp_CenterY , 8, 0, Math.PI * 2);
+    ctx.lineWidth = 24;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.strokeStyle = "rgba(255,255,255,0.25)"
+    ctx.fill();
+    ctx.stroke()
+
     //draw text to show line labels
     let temp_TagCoord_X = ( temp_CenterX * 2 + temp_deltaX ) / 2
     let temp_TagCoord_Y = (temp_CenterY * 2 - temp_deltaY) / 2
+    POwO_Kanvas_DrawTag(temp_TagCoord_X, temp_TagCoord_Y, 80, 50, 16, "#302010","R = 1","#FFC000","20px Calibri")
+    POwO_Kanvas_DrawTag(temp_TagCoord_X, temp_CenterY, 150, 50, 16, "#201010","Rcosθ = " + Math.cos(GLOBAL_Angle).toFixed(3),"#FF0000","20px Calibri")
+    POwO_Kanvas_DrawTag(temp_CenterX + temp_deltaX, temp_TagCoord_Y, 150,50,16, "#102010", "Rsinθ = " + Math.sin(GLOBAL_Angle).toFixed(3),"#00C040", "20px Calibri" )
     
-    ctx.beginPath()
-    ctx.fillStyle = "#302010"
-    ctx.roundRect(temp_TagCoord_X - GLOBAL_TagSize_W / 2 , temp_TagCoord_Y - GLOBAL_TagSize_H / 2 , GLOBAL_TagSize_W, GLOBAL_TagSize_H, 16);
-    ctx.fill()
-    ctx.fillStyle = "rgba(255,192,0,1)"
-    ctx.fillText("R = 1", temp_TagCoord_X , temp_TagCoord_Y )
-    ctx.beginPath()
-    ctx.fillStyle = "#201010"
-    ctx.roundRect(temp_TagCoord_X - GLOBAL_TagSize_W / 2 , temp_CenterY - GLOBAL_TagSize_H / 2 , GLOBAL_TagSize_W, GLOBAL_TagSize_H, 16);
-    ctx.fill()
-    ctx.fillStyle = "rgba(255,0,0,1)"
-    ctx.fillText("Rcosθ = " + Math.cos(GLOBAL_Angle).toFixed(3), temp_TagCoord_X , temp_CenterY )
-    ctx.beginPath()
-    ctx.fillStyle = "#102010"
-    ctx.roundRect(temp_CenterX + temp_deltaX - GLOBAL_TagSize_W / 2 , temp_TagCoord_Y - GLOBAL_TagSize_H / 2 , GLOBAL_TagSize_W, GLOBAL_TagSize_H, 16);
-    ctx.fill()
-    ctx.fillStyle = "rgba(0,192,64,1)"
-    ctx.fillText("Rsinθ = " + Math.sin(GLOBAL_Angle).toFixed(3), temp_CenterX + temp_deltaX , temp_TagCoord_Y )
 }
 
 
