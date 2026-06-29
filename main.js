@@ -88,6 +88,7 @@ var field_checkBox_showY_Tag = POwO_docgetel("field_checkBox_showY_Tag");
 var field_checkBox_showAngle_Total = POwO_docgetel("field_checkBox_showAngle_Total")
 var field_checkBox_showAngle_Acute = POwO_docgetel("field_checkBox_showAngle_Acute")
 
+var field_checkBox_snap = POwO_docgetel("field_checkBox_snap");
 
 var GLOBAL_RingRadius = 320
 var GLOBAL_TickMarkSize = 20
@@ -99,7 +100,6 @@ var GLOBAL_TickMarkTextOffset = 30
 var GLOBAL_CenterX = canvas.width / 2
 var GLOBAL_CenterY = canvas.height / 2
 var GLOBAL_isHold = false
-var GLOBAL_isSnap = false
 
 
 class ShOwOpe
@@ -190,10 +190,10 @@ function POwO_getMouse(event)
     };
 }
 
-function POwO_fromMousePosToAngle(inMouseX, inMouseY, isSnap)
+function POwO_fromMousePosToAngle(inMouseX, inMouseY)
 {
     let temp_Angle = Math.atan2(GLOBAL_CenterY - inMouseY, inMouseX - GLOBAL_CenterX )
-    if (isSnap)
+    if (field_checkBox_snap.checked)
     {
         for(let i = POwO_Math_DegToRad(-180 - 7.5) ; i <  POwO_Math_DegToRad(-172.5 + 360) ; i += POwO_Math_DegToRad(15))
         {
@@ -418,7 +418,7 @@ function POwO_RedrawAll()
 canvas.addEventListener("mousedown", (event) => {
 
     const { temp_mouseX, temp_mouseY } = POwO_getMouse(event);
-    GLOBAL_Angle = POwO_fromMousePosToAngle( temp_mouseX , temp_mouseY , GLOBAL_isSnap)
+    GLOBAL_Angle = POwO_fromMousePosToAngle( temp_mouseX , temp_mouseY)
     
     GLOBAL_isHold = true
     POwO_RedrawAll();
@@ -430,7 +430,7 @@ canvas.addEventListener("mousemove", (event) => {
     {
         const { temp_mouseX, temp_mouseY } = POwO_getMouse(event);
 
-        GLOBAL_Angle = POwO_fromMousePosToAngle( temp_mouseX , temp_mouseY , GLOBAL_isSnap)
+        GLOBAL_Angle = POwO_fromMousePosToAngle( temp_mouseX , temp_mouseY)
         POwO_RedrawAll();
     }
 });
