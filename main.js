@@ -443,6 +443,11 @@ HTML_Body.addEventListener("mouseup", () => {
     
 });
 
+window.addEventListener("message",(event) => {
+    GLOBAL_Angle = event.data / 360 * Math.PI * 2
+    POwO_RedrawAll();
+})
+
 var GLOBAL_shapeList = [];
 var GLOBAL_selectedShape = null;
 var GLOBAL_dragOffsetX = 0;
