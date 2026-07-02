@@ -63,6 +63,12 @@
     z-index: 1024;
 }
 
+input[type="checkbox"]{
+    margin: 0px;
+    padding: 0px;
+    width : 25px;
+}
+
 .bar
 {
     width : 40px;

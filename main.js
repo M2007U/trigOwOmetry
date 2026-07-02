@@ -90,6 +90,9 @@ var field_checkBox_showAngle_Acute = POwO_docgetel("field_checkBox_showAngle_Acu
 
 var field_checkBox_snap = POwO_docgetel("field_checkBox_snap");
 
+var field_textBox_Radius = POwO_docgetel("field_textBox_Radius");
+var field_text_tanθ = POwO_docgetel("field_text_tanθ")
+
 var GLOBAL_RingRadius = 320
 var GLOBAL_TickMarkSize = 20
 var GLOBAL_Angle = 60/360 * 2 * Math.PI
@@ -190,15 +193,22 @@ function POwO_getMouse(event)
     };
 }
 
+function POwO_Angle_Snap(inAngle)
+{
+    let outAngle = inAngle
+    for(let i = POwO_Math_DegToRad(-180 - 7.5) ; i <  POwO_Math_DegToRad(-172.5 + 360) ; i += POwO_Math_DegToRad(15))
+    {
+        if ( POwO_Math_IsInRange_Exclusive(i, outAngle , i + POwO_Math_DegToRad(15))){ outAngle = i + POwO_Math_DegToRad( 7.5 ) }
+    }
+    return outAngle;
+}
+
 function POwO_fromMousePosToAngle(inMouseX, inMouseY)
 {
     let temp_Angle = Math.atan2(GLOBAL_CenterY - inMouseY, inMouseX - GLOBAL_CenterX )
     if (field_checkBox_snap.checked)
     {
-        for(let i = POwO_Math_DegToRad(-180 - 7.5) ; i <  POwO_Math_DegToRad(-172.5 + 360) ; i += POwO_Math_DegToRad(15))
-        {
-            if ( POwO_Math_IsInRange_Exclusive(i, temp_Angle , i + POwO_Math_DegToRad(15))){ temp_Angle = i + POwO_Math_DegToRad( 7.5 ) }
-        }
+        temp_Angle = POwO_Angle_Snap(temp_Angle)
     }
     return temp_Angle
 }
@@ -406,9 +416,14 @@ function POwO_RedrawAll()
     let temp_TagCoord_X = ( GLOBAL_CenterX * 2 + temp_deltaX ) / 2
     let temp_TagCoord_Y = (GLOBAL_CenterY * 2 - temp_deltaY) / 2
     
-    if (field_checkBox_showR_Tag.checked){POwO_Kanvas_DrawTag(temp_TagCoord_X, temp_TagCoord_Y, 80, 50, 16, "#302010","R = 1","#FFC000","20px Calibri")}
-    if (field_checkBox_showX_Tag.checked){POwO_Kanvas_DrawTag(temp_TagCoord_X, GLOBAL_CenterY, 150, 50, 16, "#201010","Rcosθ = " + Math.cos(GLOBAL_Angle).toFixed(3),"#FF0000","20px Calibri")}
-    if (field_checkBox_showY_Tag.checked){POwO_Kanvas_DrawTag(GLOBAL_CenterX + temp_deltaX, temp_TagCoord_Y, 150,50,16, "#102010", "Rsinθ = " + Math.sin(GLOBAL_Angle).toFixed(3),"#00C040", "20px Calibri" )}
+    let temp_calc_Radius = field_textBox_Radius.value
+    let temp_calc_Sin = temp_calc_Radius * Math.sin(GLOBAL_Angle)
+    let temp_calc_Cos = temp_calc_Radius * Math.cos(GLOBAL_Angle)
+
+    if (field_checkBox_showR_Tag.checked){POwO_Kanvas_DrawTag(temp_TagCoord_X, temp_TagCoord_Y, 80, 50, 16, "#302010","R = " + temp_calc_Radius.toString(),"#FFC000","20px Calibri")}
+    if (field_checkBox_showX_Tag.checked){POwO_Kanvas_DrawTag(temp_TagCoord_X, GLOBAL_CenterY, 150, 50, 16, "#201010","Rcosθ = " + temp_calc_Cos.toFixed(4),"#FF0000","20px Calibri")}
+    if (field_checkBox_showY_Tag.checked){POwO_Kanvas_DrawTag(GLOBAL_CenterX + temp_deltaX, temp_TagCoord_Y, 150,50,16, "#102010", "Rsinθ = " + temp_calc_Sin.toFixed(4),"#00C040", "20px Calibri" )}
+    field_text_tanθ.textContent = (temp_calc_Sin / temp_calc_Cos).toFixed(4)
 }
 
 
@@ -444,7 +459,14 @@ HTML_Body.addEventListener("mouseup", () => {
 });
 
 window.addEventListener("message",(event) => {
-    GLOBAL_Angle = event.data / 360 * Math.PI * 2
+    let getAngle = event.data / 360 * Math.PI * 2
+
+    if (field_checkBox_snap.checked)
+    {
+        getAngle = POwO_Angle_Snap(getAngle)
+    }
+
+    GLOBAL_Angle = getAngle
     POwO_RedrawAll();
 })
 
