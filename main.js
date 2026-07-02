@@ -448,13 +448,6 @@ window.addEventListener("message",(event) => {
     POwO_RedrawAll();
 })
 
-var GLOBAL_shapeList = [];
-var GLOBAL_selectedShape = null;
-var GLOBAL_dragOffsetX = 0;
-var GLOBAL_dragOffsetY = 0;
-
-
-
 
 // ---- ---- ---- ---- RUN MAIN
 POwO_RedrawAll()
